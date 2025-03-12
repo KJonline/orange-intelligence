@@ -1,27 +1,26 @@
 import logging.config
 import sys
 
-from config import CONFIG
+from core.config_manager import get_logging_config
 from PyQt6.QtWidgets import QApplication
 from utils import avoid_dock_macos_icon
 
 from core.controller import Controller
-from core.model import Model
 
 
 def main():
-    logging.config.dictConfig(CONFIG["logging"])
+    # Configure logging using the config manager
+    logging.config.dictConfig(get_logging_config())
 
     app = QApplication(sys.argv)
 
     avoid_dock_macos_icon()
 
-    model = Model()
-
-    controller = Controller(model=model, view=app)
+    # Create the controller with the new signature
+    controller = Controller(app=app)
 
     # Run the event loop
-    sys.exit(controller.view.exec())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

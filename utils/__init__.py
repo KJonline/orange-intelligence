@@ -21,7 +21,7 @@ def get_current_process_id() -> str:
 
 def get_focused_text() -> str:
     cmd_c()
-    time.sleep(0.3)
+    time.sleep(0.5)
     # Get clipboard content
     clipboard_content = pyperclip.paste()
     return clipboard_content.strip()
@@ -68,7 +68,12 @@ def put_this_app_in_focus() -> None:
 
 def import_package_init_functions(package: types.ModuleType) -> dict[str, dict[str, typing.Callable]]:
     # List all submodules (modules and subpackages) in the package
-    submodules = [module.name for module in pkgutil.iter_modules(package.__path__)]
+    try:
+        submodules = [module.name for module in pkgutil.iter_modules(package.__path__)]
+    except (AttributeError, TypeError):
+        LOG.error(f"Error accessing modules in {package.__name__}")
+        return {}
+        
     callables = {}
 
     for submodule in submodules:
@@ -89,12 +94,19 @@ def import_package_init_functions(package: types.ModuleType) -> dict[str, dict[s
 
         except Exception as e:
             LOG.error(f"Error importing {submodule}: {e}")
+            # Add an empty dict for this submodule to avoid key errors
+            callables[submodule] = {}
 
     return callables
 
 
 def load_all_available_functions(package: types.ModuleType) -> dict[str, dict[str, typing.Callable]]:
-    return {name: functions for name, functions in import_package_init_functions(package).items() if len(functions) > 0}
+    try:
+        function_dict = import_package_init_functions(package)
+        return {name: functions for name, functions in function_dict.items() if len(functions) > 0}
+    except Exception as e:
+        LOG.error(f"Error loading extensions: {e}")
+        return {}
 
 
 def avoid_dock_macos_icon():

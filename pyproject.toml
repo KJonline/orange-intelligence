@@ -17,6 +17,10 @@ PyQt6="6.8.0"
 ollama="0.4.7"
 pyobjc-framework-Cocoa="11.0"
 openai="1.60.1"
+google-genai = "0.1.0"
+keyring = "19.1.0"
+pyautogui = "0.9.53"
+pytesseract = "0.3.13"
 
 [tool.poetry.dev-dependencies]
 black = "^23.7.0"
@@ -33,6 +37,7 @@ flake8-annotations = "^3.0.1"
 flake8-simplify = "^0.21.0"
 flake8-print = "^5.0.0"
 bandit = {extras = ["toml"], version = "^1.7.7"}
+
 
 
 [build-system]
@@ -58,7 +63,7 @@ exclude = '''
 '''
 
 [tool.isort]
-line_length = 120
+line-length = 120
 profile = "black"
 src_paths = ["core", "tests", "extensions"]
 

@@ -1,10 +1,15 @@
 import logging
+import importlib
 
 from utils import load_all_available_functions
 
 import extensions
-import extensions.ollama.example
-from extensions.variables import variables
+# Import variables module safely
+try:
+    from extensions.variables import variables
+except ImportError:
+    logging.error("Could not import extensions.variables, using empty dict")
+    variables = {}
 
 LOG = logging.getLogger(__name__)
 
@@ -22,12 +27,13 @@ class Model:
 
     def get_sections(self) -> dict[str, list[str]]:
         sections = {section: list(functions.keys()) for section, functions in self.functions.items()}
-        sections["variables"] = list(variables.keys())
+        if variables:
+            sections["variables"] = list(variables.keys())
 
         return sections
 
     def process_text(self, section: str, function_name: str, input_text: str, **kwargs) -> str:
         if section == "variables":
             return self.variables[function_name]
-
+            
         return self.functions[section][function_name](input_text, **kwargs)
